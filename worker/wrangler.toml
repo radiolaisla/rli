@@ -9,4 +9,4 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "rli-panel-db"
-database_id = "REEMPLAZA_CON_EL_DATABASE_ID_DE_D1"
+database_id = "d5a75976-7b89-4720-a619-aaff2ad81485"
