@@ -3,7 +3,7 @@ const REPO = "rli";
 const BRANCH = "main";
 const SESSION_COOKIE = "rli_session";
 const SESSION_HOURS = 8;
-const PASSWORD_ITERATIONS = 310000;
+const PASSWORD_ITERATIONS = 100000;
 const PASSWORD_MIN_LENGTH = 12;
 const LOGIN_WINDOW_SECONDS = 15 * 60;
 const LOGIN_MAX_ATTEMPTS = 8;
@@ -338,7 +338,7 @@ async function verifyPassword(password, storedHash, storedSalt) {
   if (!storedHash || !storedSalt) return false;
   const [, iterationsText, salt] = storedHash.split("$");
   const iterations = Number(iterationsText);
-  if (!Number.isFinite(iterations) || iterations < 100000) return false;
+  if (!Number.isFinite(iterations) || iterations < 100000 || iterations > 100000) return false;
 
   const key = await crypto.subtle.importKey("raw", utf8(password), "PBKDF2", false, ["deriveBits"]);
   const bits = await crypto.subtle.deriveBits(

@@ -7,7 +7,7 @@ import readline from "node:readline";
 import { stdin as input, stdout as output } from "node:process";
 
 const DB_NAME = process.env.D1_DATABASE_NAME || "rli-panel-db";
-const ITERATIONS = 310000;
+const ITERATIONS = 100000;
 
 const email = normalizeEmail(await prompt("Email admin: "));
 const password = await promptHidden("Contrasena admin: ");

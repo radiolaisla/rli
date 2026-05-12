@@ -59,7 +59,7 @@ https://rli.informativos.workers.dev/
 
 - No hay registro publico.
 - Los usuarios los crea un admin.
-- Las contrasenas se guardan con PBKDF2-SHA-256, sal aleatoria e iteraciones altas.
+- Las contrasenas se guardan con PBKDF2-SHA-256, sal aleatoria y 100000 iteraciones, que es el limite admitido por Web Crypto en Cloudflare Workers.
 - Las sesiones guardan solo el hash del token, no el token real.
 - La cookie de sesion es `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/` y expira en 8 horas.
 - El login usa mensajes genericos.
