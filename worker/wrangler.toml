@@ -1,0 +1,6 @@
+name = "rli-github-api"
+main = "index.js"
+compatibility_date = "2026-05-12"
+
+[vars]
+PANEL_ORIGIN = "https://panel.radiolaisla.es"

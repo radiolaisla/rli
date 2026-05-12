@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Panel RLI</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-shell">
+        <span class="logo-frame">
+          <img class="brand-logo" src="assets/logo.webp" alt="Logo RADIO LA ISLA" onerror="this.style.display='none'" />
+          <span class="logo-fallback" aria-hidden="true">Rli</span>
+        </span>
+        <div class="brand-block">
+          <h1>RADIO LA ISLA</h1>
+          <p class="eyebrow">Panel de contenidos</p>
+          <p class="repo-summary" id="repoSummary">Repositorio: rariolaisla/rli &middot; Rama: main</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="status-badge neutral" id="statusBadge">Sin cargar</span>
+        <button type="button" class="secondary dark" id="loadAll">Cargar archivos</button>
+        <button type="button" id="saveAll" disabled>Guardar cambios</button>
+        <button type="button" class="secondary dark" id="openConfig" title="Configuracion">&#9881; Configuracion</button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="workspace">
+        <nav class="tabs" aria-label="Secciones">
+          <button class="tab active" data-tab="schedule" type="button">Programaci&oacute;n</button>
+          <button class="tab" data-tab="podcasts" type="button">Podcasts</button>
+        </nav>
+
+        <section class="tab-panel active" id="schedulePanel">
+          <div class="section-title">
+            <div>
+              <h2>Programaci&oacute;n semanal</h2>
+              <p>Organiza los programas por d&iacute;a, hora, programa y locutor.</p>
+            </div>
+            <div class="button-row">
+              <button type="button" class="secondary" id="weeklyView">Vista semanal</button>
+              <button type="button" class="secondary" id="tableView">Vista tabla</button>
+              <button type="button" id="addSchedule">A&ntilde;adir programa</button>
+            </div>
+          </div>
+
+          <div class="tools-row">
+            <label>
+              Filtrar por d&iacute;a
+              <select id="dayFilter">
+                <option value="">Todos</option>
+              </select>
+            </label>
+            <label class="search-field">
+              Buscar
+              <input id="scheduleSearch" placeholder="Programa, locutor o descripci&oacute;n" />
+            </label>
+          </div>
+
+          <div class="schedule-week" id="scheduleWeek"></div>
+
+          <div class="table-wrap hidden" id="scheduleTableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>D&iacute;a</th>
+                  <th>Inicio</th>
+                  <th>Fin</th>
+                  <th>Programa</th>
+                  <th>Locutor</th>
+                  <th>Descripci&oacute;n</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="scheduleRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="podcastsPanel">
+          <div class="section-title">
+            <div>
+              <h2>Podcasts</h2>
+              <p>Administra el JSON con los campos <code>name</code> y <code>rssUrl</code>.</p>
+            </div>
+            <div class="button-row">
+              <button type="button" id="addPodcast">A&ntilde;adir podcast</button>
+            </div>
+          </div>
+
+          <div class="podcast-list" id="podcastList"></div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="configDialog">
+      <form method="dialog" class="dialog-form" id="configForm">
+        <div class="dialog-title-row">
+          <div>
+            <h2>Configuraci&oacute;n</h2>
+            <p>Datos t&eacute;cnicos de conexi&oacute;n con el Worker.</p>
+          </div>
+          <button type="button" class="icon-button" data-close="configDialog" title="Cerrar">&times;</button>
+        </div>
+        <label>
+          URL del Worker
+          <input id="workerUrl" name="workerUrl" autocomplete="off" placeholder="https://rli-github-api.tu-subdominio.workers.dev" />
+        </label>
+        <label>
+          Archivo CSV programaci&oacute;n
+          <input id="schedulePath" name="schedulePath" autocomplete="off" placeholder="programacion.csv" />
+        </label>
+        <label>
+          Archivo JSON podcasts
+          <input id="podcastsPath" name="podcastsPath" autocomplete="off" placeholder="podcasts.json" />
+        </label>
+        <div class="dialog-actions">
+          <button type="button" class="secondary" id="testConnection">Probar conexi&oacute;n</button>
+          <button type="submit">Guardar configuraci&oacute;n</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="scheduleDialog">
+      <form method="dialog" class="dialog-form" id="scheduleForm" novalidate>
+        <h2 id="scheduleDialogTitle">A&ntilde;adir programa</h2>
+        <div class="form-error hidden" id="scheduleError"></div>
+        <input type="hidden" id="scheduleIndex" />
+        <label>
+          D&iacute;a
+          <select id="scheduleDay" required>
+            <option value="lunes">Lunes</option>
+            <option value="martes">Martes</option>
+            <option value="miercoles">Mi&eacute;rcoles</option>
+            <option value="jueves">Jueves</option>
+            <option value="viernes">Viernes</option>
+            <option value="sabado">S&aacute;bado</option>
+            <option value="domingo">Domingo</option>
+          </select>
+        </label>
+        <div class="two-columns">
+          <label>Inicio <input id="scheduleStart" type="time" required /></label>
+          <label>Fin <input id="scheduleEnd" type="time" required /></label>
+        </div>
+        <label>Programa <input id="scheduleProgram" list="programOptions" required /></label>
+        <label>Locutor <input id="scheduleHost" list="hostOptions" /></label>
+        <datalist id="programOptions"></datalist>
+        <datalist id="hostOptions"></datalist>
+        <label>Descripci&oacute;n <textarea id="scheduleDescription" rows="4"></textarea></label>
+        <div class="dialog-actions">
+          <button type="button" class="secondary" data-close="scheduleDialog">Cancelar</button>
+          <button type="submit">Aceptar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="podcastDialog">
+      <form method="dialog" class="dialog-form" id="podcastForm" novalidate>
+        <h2 id="podcastDialogTitle">A&ntilde;adir podcast</h2>
+        <div class="form-error hidden" id="podcastError"></div>
+        <input type="hidden" id="podcastIndex" />
+        <label>Nombre <input id="podcastName" required /></label>
+        <label>
+          Enlace web de iVoox o RSS
+          <input id="podcastWeb" type="url" required placeholder="https://www.ivoox.com/podcast-..._sq_f123_1.html" />
+        </label>
+        <div class="rss-preview hidden" id="rssPreview"></div>
+        <div class="dialog-actions">
+          <button type="button" class="secondary" data-close="podcastDialog">Cancelar</button>
+          <button type="submit">Aceptar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
