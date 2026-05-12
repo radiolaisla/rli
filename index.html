@@ -21,8 +21,11 @@
       </div>
       <div class="topbar-actions">
         <span class="status-badge neutral" id="statusBadge">Sin cargar</span>
+        <span class="user-badge" id="currentUser">Sesion</span>
+        <a class="button-link secondary dark hidden" id="adminUsersLink" href="/admin/users">Usuarios</a>
         <button type="button" class="secondary dark" id="loadAll">Cargar archivos</button>
         <button type="button" id="saveAll" disabled>Guardar cambios</button>
+        <button type="button" class="secondary dark" id="logoutButton">Cerrar sesi&oacute;n</button>
         <button type="button" class="secondary dark" id="openConfig" title="Configuracion">&#9881; Configuracion</button>
       </div>
     </header>
@@ -101,14 +104,10 @@
         <div class="dialog-title-row">
           <div>
             <h2>Configuraci&oacute;n</h2>
-            <p>Datos t&eacute;cnicos de conexi&oacute;n con el Worker.</p>
+            <p>Rutas de archivos gestionados en GitHub.</p>
           </div>
           <button type="button" class="icon-button" data-close="configDialog" title="Cerrar">&times;</button>
         </div>
-        <label>
-          URL del Worker
-          <input id="workerUrl" name="workerUrl" autocomplete="off" placeholder="https://rli-github-api.tu-subdominio.workers.dev" />
-        </label>
         <label>
           Archivo CSV programaci&oacute;n
           <input id="schedulePath" name="schedulePath" autocomplete="off" placeholder="programacion.csv" />

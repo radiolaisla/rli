@@ -33,11 +33,13 @@ body {
 button,
 input,
 select,
-textarea {
+textarea,
+.button-link {
   font: inherit;
 }
 
-button {
+button,
+.button-link {
   align-items: center;
   background: var(--color-primary);
   border: 1px solid transparent;
@@ -49,9 +51,11 @@ button {
   justify-content: center;
   min-height: 42px;
   padding: 0 14px;
+  text-decoration: none;
 }
 
-button:hover {
+button:hover,
+.button-link:hover {
   background: var(--color-primary-hover);
   color: #ffffff;
 }
@@ -72,25 +76,29 @@ button:disabled {
   opacity: 1;
 }
 
-button.secondary {
+button.secondary,
+.button-link.secondary {
   background: rgba(255, 255, 255, 0.07);
   border-color: var(--color-border);
   color: var(--color-text);
 }
 
-button.secondary:hover {
+button.secondary:hover,
+.button-link.secondary:hover {
   background: rgba(31, 63, 112, 0.9);
   border-color: rgba(255, 255, 255, 0.18);
   color: var(--color-text);
 }
 
-button.secondary.dark {
+button.secondary.dark,
+.button-link.secondary.dark {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.14);
   color: var(--color-text);
 }
 
-button.secondary.dark:hover {
+button.secondary.dark:hover,
+.button-link.secondary.dark:hover {
   background: var(--color-surface-soft);
 }
 
@@ -221,6 +229,19 @@ h1 {
   justify-content: center;
   min-width: 112px;
   padding: 9px 12px;
+}
+
+.user-badge {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: var(--color-muted);
+  display: inline-flex;
+  font-size: 0.86rem;
+  font-weight: 800;
+  min-height: 38px;
+  padding: 8px 12px;
 }
 
 .status-badge.idle,
@@ -495,6 +516,24 @@ table {
   width: 100%;
 }
 
+.admin-workspace .inline-form {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  margin: 3px;
+  vertical-align: middle;
+}
+
+.admin-workspace .inline-form input,
+.admin-workspace .inline-form select {
+  min-width: 150px;
+  width: auto;
+}
+
+.admin-workspace .password-form input {
+  min-width: 220px;
+}
+
 th,
 td {
   border-bottom: 1px solid var(--color-border);
@@ -764,6 +803,7 @@ dialog::backdrop {
 
   .tab,
   .topbar-actions button,
+  .topbar-actions .button-link,
   .button-row button,
   .dialog-actions button,
   .empty-actions button {

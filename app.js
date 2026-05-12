@@ -1,5 +1,4 @@
 const defaultConfig = {
-  workerUrl: "https://rli-github-api.informativos.workers.dev",
   schedulePath: "programacion.csv",
   podcastsPath: "podcasts.json"
 };
@@ -19,7 +18,8 @@ const state = {
   podcastsSha: null,
   hasUnsavedChanges: false,
   currentStatus: "idle",
-  scheduleView: "week"
+  scheduleView: "week",
+  user: null
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -28,6 +28,7 @@ const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 document.addEventListener("DOMContentLoaded", () => {
   fillConfigForm();
   bindEvents();
+  loadCurrentUser();
   renderAll();
   setStatus("idle", "Sin cargar");
 });
@@ -43,6 +44,7 @@ function bindEvents() {
     setStatus("success", "Configuracion guardada");
   });
   $("#testConnection").addEventListener("click", testConnection);
+  $("#logoutButton").addEventListener("click", logout);
 
   $("#loadAll").addEventListener("click", loadAllFiles);
   $("#saveAll").addEventListener("click", saveAllChanges);
@@ -86,18 +88,10 @@ function bindEvents() {
 
 function loadConfig() {
   try {
-    return normalizeConfig({ ...defaultConfig, ...JSON.parse(localStorage.getItem("radioGithubPanelConfig") || "{}") });
+    return { ...defaultConfig, ...JSON.parse(localStorage.getItem("radioGithubPanelConfig") || "{}") };
   } catch {
     return { ...defaultConfig };
   }
-}
-
-function normalizeConfig(config) {
-  const workerUrl = String(config.workerUrl || "").trim().replace(/\/+$/, "");
-  return {
-    ...config,
-    workerUrl: workerUrl.includes("tu-subdominio.workers.dev") ? defaultConfig.workerUrl : workerUrl
-  };
 }
 
 function saveConfig(config) {
@@ -105,14 +99,12 @@ function saveConfig(config) {
 }
 
 function fillConfigForm() {
-  $("#workerUrl").value = state.config.workerUrl;
   $("#schedulePath").value = state.config.schedulePath;
   $("#podcastsPath").value = state.config.podcastsPath;
 }
 
 function readConfigForm() {
   return {
-    workerUrl: $("#workerUrl").value.trim(),
     schedulePath: $("#schedulePath").value.trim() || "programacion.csv",
     podcastsPath: $("#podcastsPath").value.trim() || "podcasts.json"
   };
@@ -129,8 +121,23 @@ function renderAll() {
 
 function updateRepoSummary() {
   const summary = $("#repoSummary");
-  const workerStatus = state.config.workerUrl ? "Worker configurado" : "Worker sin configurar";
-  summary.textContent = `Repositorio: ${githubTarget.owner}/${githubTarget.repo} - Rama: ${githubTarget.branch} - ${workerStatus}`;
+  summary.textContent = `Repositorio: ${githubTarget.owner}/${githubTarget.repo} - Rama: ${githubTarget.branch}`;
+}
+
+async function loadCurrentUser() {
+  try {
+    const user = await apiRequest("/api/me");
+    state.user = user;
+    $("#currentUser").textContent = `${user.email} (${user.role})`;
+    $("#adminUsersLink").classList.toggle("hidden", user.role !== "admin");
+  } catch {
+    window.location.href = "/login";
+  }
+}
+
+async function logout() {
+  await fetch("/api/logout", { method: "POST" }).catch(() => {});
+  window.location.href = "/login";
 }
 
 async function loadAllFiles() {
@@ -202,7 +209,7 @@ async function saveAllChanges() {
 }
 
 async function getGithubFile(path) {
-  const data = await workerRequest(`/api/file?path=${encodeURIComponent(path)}`);
+  const data = await apiRequest(`/api/github/file?path=${encodeURIComponent(path)}`);
   return { path, sha: data.sha, content: data.content || "" };
 }
 
@@ -218,16 +225,14 @@ async function getGithubFileOrDefault(path, defaultContent) {
 }
 
 async function putGithubFile(path, content, sha, message) {
-  const data = await workerRequest("/api/file", {
+  const data = await apiRequest("/api/github/file", {
     method: "PUT",
     body: JSON.stringify({ path, content, sha, message })
   });
   return data.sha;
 }
 
-async function workerRequest(path, options = {}) {
-  const baseUrl = state.config.workerUrl.replace(/\/+$/, "");
-  if (!baseUrl) throw new Error("missing_worker_url");
+async function apiRequest(path, options = {}) {
   const headers = {
     Accept: "application/json",
     ...(options.headers || {})
@@ -238,18 +243,19 @@ async function workerRequest(path, options = {}) {
 
   let response;
   try {
-    response = await fetch(`${baseUrl}${path}`, {
+    response = await fetch(path, {
       ...options,
       headers
     });
   } catch (error) {
-    const workerError = new Error("worker_network_error");
+    const workerError = new Error("network_error");
     workerError.cause = error;
     throw workerError;
   }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 401) window.location.href = "/login";
     const error = new Error(data.error || data.message || "worker_error");
     error.status = response.status;
     error.path = data.path;
@@ -768,9 +774,8 @@ function setStatus(type, message) {
 }
 
 function friendlyError(error, saving = false) {
-  if (error.message === "missing_worker_url") return "Configura primero la URL del Worker.";
   if (error.status === 401 || error.status === 403) {
-    return "El Worker no tiene permiso para acceder a GitHub. Revisa el secret GITHUB_TOKEN y sus permisos.";
+    return "No tienes permisos para realizar esta accion o la sesion ha caducado.";
   }
   if (error.status === 404 && error.path) {
     return `No se ha encontrado ${error.path} en la rama ${githubTarget.branch}.`;
@@ -778,8 +783,8 @@ function friendlyError(error, saving = false) {
   if (saving && (error.status === 409 || /sha/i.test(error.message))) {
     return "No se han podido guardar los cambios. Puede que el archivo haya cambiado en GitHub desde la ultima carga.";
   }
-  if (/failed to fetch|worker_network_error/i.test(error.message)) {
-    return "No se ha podido conectar con el Worker. Revisa la URL configurada y el despliegue.";
+  if (/failed to fetch|network_error/i.test(error.message)) {
+    return "No se ha podido conectar con el servidor. Revisa la conexion y el despliegue.";
   }
   return saving ? "No se han podido guardar los cambios." : "No se han podido cargar los archivos.";
 }

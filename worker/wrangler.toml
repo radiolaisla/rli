@@ -1,6 +1,12 @@
-name = "rli-github-api"
+name = "rli"
 main = "index.js"
 compatibility_date = "2026-05-12"
 
-[vars]
-PANEL_ORIGIN = "https://panel.radiolaisla.es"
+[assets]
+directory = ".."
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rli-panel-db"
+database_id = "REEMPLAZA_CON_EL_DATABASE_ID_DE_D1"
