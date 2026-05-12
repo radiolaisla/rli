@@ -1,5 +1,5 @@
 const defaultConfig = {
-  workerUrl: "https://rli-github-api.tu-subdominio.workers.dev",
+  workerUrl: "https://rli-github-api.informativos.workers.dev",
   schedulePath: "programacion.csv",
   podcastsPath: "podcasts.json"
 };
@@ -86,10 +86,18 @@ function bindEvents() {
 
 function loadConfig() {
   try {
-    return { ...defaultConfig, ...JSON.parse(localStorage.getItem("radioGithubPanelConfig") || "{}") };
+    return normalizeConfig({ ...defaultConfig, ...JSON.parse(localStorage.getItem("radioGithubPanelConfig") || "{}") });
   } catch {
     return { ...defaultConfig };
   }
+}
+
+function normalizeConfig(config) {
+  const workerUrl = String(config.workerUrl || "").trim().replace(/\/+$/, "");
+  return {
+    ...config,
+    workerUrl: workerUrl.includes("tu-subdominio.workers.dev") ? defaultConfig.workerUrl : workerUrl
+  };
 }
 
 function saveConfig(config) {
