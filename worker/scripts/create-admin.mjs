@@ -1,5 +1,8 @@
 import { createHash, pbkdf2Sync, randomBytes, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import readline from "node:readline";
 import { stdin as input, stdout as output } from "node:process";
 
@@ -39,7 +42,19 @@ ON CONFLICT(email) DO UPDATE SET
 `;
 
 const wrangler = process.platform === "win32" ? "wrangler.cmd" : "wrangler";
-execFileSync(wrangler, ["d1", "execute", DB_NAME, "--remote", "--command", sql], { stdio: "inherit" });
+const tempDir = mkdtempSync(join(tmpdir(), "rli-admin-"));
+const sqlFile = join(tempDir, "create-admin.sql");
+
+try {
+  writeFileSync(sqlFile, sql, { encoding: "utf8" });
+  execFileSync(wrangler, ["d1", "execute", DB_NAME, "--remote", "--file", sqlFile], {
+    stdio: "inherit",
+    shell: process.platform === "win32"
+  });
+} finally {
+  rmSync(tempDir, { recursive: true, force: true });
+}
+
 console.log("Admin creado o actualizado correctamente.");
 
 function prompt(question) {
