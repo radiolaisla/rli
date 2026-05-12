@@ -155,16 +155,16 @@ Si usas un token clasico, limita su uso al repositorio y permisos necesarios par
 
 ## CORS
 
-El Worker solo devuelve cabeceras CORS para el dominio configurado como `PANEL_ORIGIN`.
+El Worker solo devuelve cabeceras CORS para los dominios configurados como `ALLOWED_ORIGINS`.
 
 Valor de ejemplo en `worker/wrangler.toml`:
 
 ```toml
 [vars]
-PANEL_ORIGIN = "https://panel.radiolaisla.es"
+ALLOWED_ORIGINS = "https://panel.radiolaisla.es,https://rli.informativos.workers.dev"
 ```
 
-Cambia ese valor por el dominio real de Cloudflare Pages cuando lo tengas.
+Cambia esos valores por los dominios reales desde donde se abrira el panel.
 
 ## Archivos administrados por el panel
 
