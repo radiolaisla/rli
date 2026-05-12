@@ -54,31 +54,24 @@ function prompt(question) {
 
 function promptHidden(question) {
   return new Promise((resolve) => {
-    readline.emitKeypressEvents(input);
-    const wasRaw = input.isRaw;
-    if (input.isTTY) input.setRawMode(true);
-    output.write(question);
-
+    const rl = readline.createInterface({ input, output });
     let value = "";
-    const onKeypress = (char, key) => {
-      if (key?.name === "return") {
-        output.write("\n");
-        input.off("keypress", onKeypress);
-        if (input.isTTY) input.setRawMode(Boolean(wasRaw));
-        resolve(value);
-        return;
+    const originalWrite = output.write;
+
+    output.write = function writeMuted(text, encoding, callback) {
+      if (String(text).includes(question)) {
+        return originalWrite.call(output, text, encoding, callback);
       }
-      if (key?.name === "backspace") {
-        value = value.slice(0, -1);
-        return;
-      }
-      if (key?.ctrl && key.name === "c") {
-        process.exit(1);
-      }
-      if (char) value += char;
+      return true;
     };
 
-    input.on("keypress", onKeypress);
+    rl.question(question, (answer) => {
+      value = answer;
+      output.write = originalWrite;
+      output.write("\n");
+      rl.close();
+      resolve(value);
+    });
   });
 }
 
