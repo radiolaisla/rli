@@ -5,7 +5,7 @@ const defaultConfig = {
 };
 
 const githubTarget = {
-  owner: "rariolaisla",
+  owner: "radiolaisla",
   repo: "rli",
   branch: "main"
 };

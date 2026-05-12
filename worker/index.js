@@ -1,4 +1,4 @@
-const OWNER = "rariolaisla";
+const OWNER = "radiolaisla";
 const REPO = "rli";
 const BRANCH = "main";
 const DEFAULT_PANEL_ORIGIN = "https://panel.radiolaisla.es";

@@ -24,13 +24,13 @@ El frontend se despliega en Cloudflare Pages y no contiene tokens de GitHub. Las
 Repositorio definitivo:
 
 ```text
-https://github.com/rariolaisla/rli
+https://github.com/radiolaisla/rli
 ```
 
 Configuracion usada por el Worker:
 
 ```text
-owner: rariolaisla
+owner: radiolaisla
 repo: rli
 branch: main
 ```
@@ -81,10 +81,10 @@ Body:
 
 ## Desplegar Cloudflare Pages
 
-1. Sube estos archivos al repositorio `https://github.com/rariolaisla/rli`.
+1. Sube estos archivos al repositorio `https://github.com/radiolaisla/rli`.
 2. En Cloudflare, entra en **Workers & Pages**.
 3. Crea una nueva aplicacion de **Pages**.
-4. Conecta GitHub y selecciona el repositorio `rariolaisla/rli`.
+4. Conecta GitHub y selecciona el repositorio `radiolaisla/rli`.
 5. Usa esta configuracion:
 
 ```text
@@ -148,7 +148,7 @@ Usa un token con el menor alcance posible.
 
 Para un fine-grained personal access token:
 
-- Repository access: solo `rariolaisla/rli`.
+- Repository access: solo `radiolaisla/rli`.
 - Permissions: **Contents: Read and write**.
 
 Si usas un token clasico, limita su uso al repositorio y permisos necesarios para leer y escribir contenidos.
